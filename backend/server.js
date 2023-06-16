@@ -8,8 +8,9 @@ const configuration = new Configuration({
     apiKey: credentials.openai.apiKey_Michael,
 });
 const openai = new OpenAIApi(configuration);
+const request = require('request');
 
-async function submitForm() {
+async function submitGPT() {
     let options = {
         model: 'text-davinci-003',
         temperature: 0,
@@ -25,4 +26,22 @@ async function submitForm() {
 }
 // 'insufficient_quota'...
 // My free trial expired so my APIkay can't make requests
-// submitForm();
+// submitGPT();
+
+function submitMeteo(latitude, longitude) {
+    var url = `http://api.openweathermap.org/data/2.5/weather?`
+    +`lat=${latitude}&lon=${longitude}&appid=${credentials.open_meteo.apiKey}`
+
+    request({ url: url, json: true }, function (error, response) { 
+        if (error) { 
+            console.log('Unable to connect to Forecast API'); 
+        } 
+        else { 
+            console.log('It is currently ' + response.body.main.temp + ' degrees out.'); 
+            console.log('The high today is ' + response.body.main.temp_max + ' with a low of ' + response.body.main.temp_min); 
+            console.log('Humidity today is ' + response.body.main.humidity); 
+        } 
+    }) 
+}
+// NY,NY coordinates
+submitMeteo(40.71,-74.01)
