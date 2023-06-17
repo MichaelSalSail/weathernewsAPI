@@ -9,6 +9,8 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 const request = require('request');
+const NewsAPI = require('newsapi');
+const newsapi = new NewsAPI(credentials.news_api.apiKey);
 
 async function submitGPT() {
     let options = {
@@ -84,3 +86,26 @@ function submitMeteo(latitude, longitude) {
 }
 // NY,NY coordinates
 submitMeteo(40.71,-74.01)
+
+async function submitNews() {
+    let result=await newsapi.v2.topHeadlines({
+        q: "weather",
+        category: 'general',
+        pagesize: 10,
+        language: 'en',
+        country: 'us'
+    })
+    if(result.articles>0)
+        console.log(result.articles);
+    else {
+        console.log("There's no relevant weather news... here's general news.")
+        result=await newsapi.v2.topHeadlines({
+            category: 'general',
+            pagesize: 10,
+            language: 'en',
+            country: 'us'
+        })        
+        console.log(result.articles);
+    }
+}
+submitNews()
