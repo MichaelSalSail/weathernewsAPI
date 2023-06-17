@@ -32,6 +32,7 @@ async function submitGPT() {
 
 function submitMeteo(latitude, longitude) {
     // API Doc: https://open-meteo.com/en/docs
+    let weather_resp={weather_response:{current:{temperature:0,weathercode:0},forecast:{}}}
     let url = `http://api.open-meteo.com/v1/forecast?`
     +`latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_mean,weathercode&timezone=GMT&appid=${credentials.open_meteo.apiKey}`
     request({ url: url, json: true }, function (error, response) { 
@@ -39,8 +40,10 @@ function submitMeteo(latitude, longitude) {
             console.log('Unable to connect to Forecast API'); 
         } 
         else { 
-            console.log(response.body.current_weather)
-            console.log(response.body.daily)
+            weather_resp.weather_response.current.temperature=response.body.current_weather.temperature;
+            weather_resp.weather_response.current.weathercode=response.body.current_weather.weathercode;
+            weather_resp.weather_response.forecast=response.body.daily;
+            console.log(JSON.stringify(weather_resp, null, 2));
             /* Example response includes todays weather and forecast for next 7 days: 
             {
                 temperature: 64.1,
@@ -81,6 +84,7 @@ function submitMeteo(latitude, longitude) {
             }
             weathercode doc: https://www.nodc.noaa.gov/archive/arc0021/0002199/1.1/data/0-data/HTML/WMO-CODE/WMO4677.HTM
             */
+           return weather_resp;
         } 
     }) 
 }
@@ -88,21 +92,42 @@ function submitMeteo(latitude, longitude) {
 submitMeteo(40.71,-74.01)
 
 async function submitNews(location_name) {
+    let news_resp={news_response:{news_in_location:true,data:[]}}
     let result=await newsapi.v2.everything({
         q: `${location_name} AND (weather OR wildfire OR air quality OR heatwave OR storm OR hurricane OR flood OR drought OR natural disasters OR rainfall OR temperature)`,
         pagesize: 10,
         language: 'en'
     })
-    if(result.articles.length>0)
+    if(result.articles.length>0) {
         console.log(result.articles);
+        for(let i=0;i<result.articles.length;i++) {
+            news_resp.news_response.data[i]= {
+                title:result.articles[i].title,
+                url:result.articles[i].url,
+                publishedAt:result.articles[i].publishedAt
+            }
+        }
+        console.log(JSON.stringify(news_resp, null, 2));
+        return news_resp;
+    }
     else {
         console.log("There's no relevant news about weather in your area. Here's the most recent news about the weather...")
+        news_resp.news_response.news_in_location=false;
         result=await newsapi.v2.everything({
             q: "weather OR wildfire OR air quality OR heatwave OR storm OR hurricane OR flood OR drought OR natural disasters OR rainfall OR temperature",
             pagesize: 10,
             language: 'en'
-        })        
+        })
         console.log(result.articles);
+        for(let i=0;i<result.articles.length;i++) {
+            news_resp.news_response.data[i]= {
+                title:result.articles[i].title,
+                url:result.articles[i].url,
+                publishedAt:result.articles[i].publishedAt
+            }
+        }
+        console.log(JSON.stringify(news_resp, null, 2));
+        return news_resp;
     }
 }
 submitNews("New York")
