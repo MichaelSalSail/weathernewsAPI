@@ -29,17 +29,56 @@ async function submitGPT() {
 // submitGPT();
 
 function submitMeteo(latitude, longitude) {
-    var url = `http://api.openweathermap.org/data/2.5/weather?`
-    +`lat=${latitude}&lon=${longitude}&appid=${credentials.open_meteo.apiKey}`
-
+    // API Doc: https://open-meteo.com/en/docs
+    let url = `http://api.open-meteo.com/v1/forecast?`
+    +`latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_mean,weathercode&timezone=GMT&appid=${credentials.open_meteo.apiKey}`
     request({ url: url, json: true }, function (error, response) { 
         if (error) { 
             console.log('Unable to connect to Forecast API'); 
         } 
         else { 
-            console.log('It is currently ' + response.body.main.temp + ' degrees out.'); 
-            console.log('The high today is ' + response.body.main.temp_max + ' with a low of ' + response.body.main.temp_min); 
-            console.log('Humidity today is ' + response.body.main.humidity); 
+            console.log(response.body.current_weather)
+            console.log(response.body.daily)
+            /* Example response includes todays weather and forecast for next 7 days: 
+            {
+                temperature: 64.1,
+                windspeed: 7.4,
+                winddirection: 337,
+                weathercode: 3,
+                is_day: 0,
+                time: '2023-06-17T02:00'
+            }
+            {
+                time: [
+                    '2023-06-17',
+                    '2023-06-18',
+                    '2023-06-19',
+                    '2023-06-20',
+                    '2023-06-21',
+                    '2023-06-22',
+                    '2023-06-23'
+                ],
+                temperature_2m_max: [
+                    80.4, 80.7,   77,
+                    69.2, 70.6, 81.6,
+                    90.3
+                ],
+                temperature_2m_min: [
+                    59, 59.5, 65.6,
+                    65, 62.2, 62.2,
+                    69
+                ],
+                precipitation_probability_mean: [
+                    55, 3,  3, 6,
+                    10, 3, 13
+                ],
+                weathercode: [
+                    3, 3, 3, 51,
+                    51, 3, 0
+                ]
+            }
+            weathercode doc: https://www.nodc.noaa.gov/archive/arc0021/0002199/1.1/data/0-data/HTML/WMO-CODE/WMO4677.HTM
+            */
         } 
     }) 
 }
