@@ -87,25 +87,22 @@ function submitMeteo(latitude, longitude) {
 // NY,NY coordinates
 submitMeteo(40.71,-74.01)
 
-async function submitNews() {
-    let result=await newsapi.v2.topHeadlines({
-        q: "weather",
-        category: 'general',
+async function submitNews(location_name) {
+    let result=await newsapi.v2.everything({
+        q: `${location_name} AND (weather OR wildfire OR air quality OR heatwave OR storm OR hurricane OR flood OR drought OR natural disasters OR rainfall OR temperature)`,
         pagesize: 10,
-        language: 'en',
-        country: 'us'
+        language: 'en'
     })
-    if(result.articles>0)
+    if(result.articles.length>0)
         console.log(result.articles);
     else {
-        console.log("There's no relevant weather news... here's general news.")
-        result=await newsapi.v2.topHeadlines({
-            category: 'general',
+        console.log("There's no relevant news about weather in your area. Here's the most recent news about the weather...")
+        result=await newsapi.v2.everything({
+            q: "weather OR wildfire OR air quality OR heatwave OR storm OR hurricane OR flood OR drought OR natural disasters OR rainfall OR temperature",
             pagesize: 10,
-            language: 'en',
-            country: 'us'
+            language: 'en'
         })        
         console.log(result.articles);
     }
 }
-submitNews()
+submitNews("New York")
