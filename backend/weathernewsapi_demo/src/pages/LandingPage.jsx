@@ -7,6 +7,24 @@ export default function LandingPage() {
     const handleChange = (event) => {
         setText(event.target.value);
     };
+    function submitData() {
+        fetch("http://localhost:4000/", {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                // format: "(latitude, longitude) {location_name}"
+                location_info: text
+            })
+            }).then(response => response.json())
+            .then(data => {
+                console.log("Successful POST signatureRequest!",data);
+            }).catch((error) => {
+                console.log("Unsuccessful POST signatureRequest.",error);
+            });
+    }
     return (
     <div>
         <h1>
@@ -16,9 +34,11 @@ export default function LandingPage() {
             onChange={handleChange}
         />
         <button
+            type="submit"
             onClick={() => {
-            console.log("Redirecting to /results");
-            navigate("/results");
+                submitData();
+                console.log("Redirecting to /results");
+                navigate("/results");
             }}
             style={{ borderRadius: "8px" }}
         >
