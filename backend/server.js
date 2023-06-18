@@ -87,8 +87,9 @@ app.post('/', jsonParser, async (req,res)=>{
       console.log("Received user input!");
       try
       {
-        total_api_resp.weather_response = await api_calls.submitMeteo(40.71,-74.01);
-        res.json(total_api_resp.weather_response);
+        let temp= await api_calls.submitNews(req.body.location_info);
+        total_api_resp.news_response = temp.news_response;
+        res.json(total_api_resp);
         console.log(res);
       }
       catch(error)
